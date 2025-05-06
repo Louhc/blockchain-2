@@ -26,7 +26,13 @@ def get_curr_round():
     # Do not round intermediate arithmetic
 
     # placeholder for (2.2)
-    return 0
+    if start_time == None:
+        return None
+    curr_time = time.time()
+    elapsed_time = curr_time - start_time
+    if elapsed_time < 0:
+        return None
+    return int(elapsed_time / round_length)
 
 def should_send():
     """ Determine whether a node should be sending messages when queried.
@@ -39,7 +45,20 @@ def should_send():
     # specifically w.r.t. timing assumptions at the boundaries of the synchrony assumption
 
     # placeholder for (2.3)
-    return False
+    if start_time == None:
+        return None
+    curr_time = time.time()
+    elapsed_time = curr_time - start_time
+    if elapsed_time < 0:
+        return False
+    curr_round = get_curr_round()
+    if curr_round == None:
+        return False
+    if elapsed_time % round_length < synchrony_assumption:
+        return False
+    if elapsed_time % round_length > (round_length - synchrony_assumption):
+        return False
+    return True
 
 def receive_start_message():
     """ Called on receipt of a start message; starts tracking rounds and initializes
@@ -48,6 +67,8 @@ def receive_start_message():
     global start_time
 
     # placeholder for (2.1)
+    start_time = time.time()
+    log_synchrony()
 
 @run_async
 def log_synchrony():
